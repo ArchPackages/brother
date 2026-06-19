@@ -1,7 +1,7 @@
 pkgbase = brother-mfc-l3760cdw
 	pkgdesc = LPR and CUPS drivers for the Brother MFC-L3760CDW
 	pkgver = 3.5.1
-	pkgrel = 3
+	pkgrel = 4
 	url = https://support.brother.com/g/s/id/linux/en/index.html
 	install = brother-mfc-l3760cdw.install
 	arch = x86_64
@@ -23,6 +23,6 @@ pkgbase = brother-mfc-l3760cdw
 	source = setupPrintcapij.patch
 	sha256sums = 9642d01d9b8b13d434082ca282aefb29783f34d2db60406775bc605bd3c9a828
 	sha256sums = 13d83b7198a6dfa6e3e0d547bc145f2b9d7b777245a91964a153000db1a6d05b
-	sha256sums = d2c7f279f8b51a5cf6a1410686acb726f93c711d8af8daf102fc265065d3fdeb
+	sha256sums = c9ab44ca0d2ac04f427e475d878cf537c8f2b05119f89dc1551315721dc6d0cb
 
 pkgname = brother-mfc-l3760cdw

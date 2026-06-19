@@ -1,6 +1,9 @@
 _model=mfcl3760cdw
 
 post_install() {
+  /opt/brother/Printers/${_model}/inf/setupPrintcapij ${_model} -e >/dev/null 2>&1 || true
+  install -d -m 755 /var/spool/lpd
+
   echo "Adding an entry to /etc/printcap"
   /opt/brother/Printers/${_model}/inf/setupPrintcapij ${_model} -i || true
 
@@ -28,6 +31,10 @@ post_install() {
   fi
 
   _restart_print_service
+}
+
+post_upgrade() {
+  post_install
 }
 
 pre_remove() {

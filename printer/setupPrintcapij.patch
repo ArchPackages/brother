@@ -9,11 +9,11 @@
 -fi
 -
  case "$2" in
- 	-i)
- 	if [ ! -d $SPOOLER_NAME ]; then
+	-i)
+	if [ ! -d $SPOOLER_NAME ]; then
 -	        mkdir $SPOOLER_NAME
-+		mkdir $SPOOLER_NAME
- 	fi
++		mkdir -p $SPOOLER_NAME
+	fi
 -	chown lp $SPOOLER_NAME
 +	chown daemon $SPOOLER_NAME
  	chgrp lp $SPOOLER_NAME
