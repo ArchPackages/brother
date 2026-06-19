@@ -1,0 +1,62 @@
+_model=mfcl3760cdw
+
+post_install() {
+  echo "Adding an entry to /etc/printcap"
+  /opt/brother/Printers/${_model}/inf/setupPrintcapij ${_model} -i || true
+
+  if command -v lpadmin >/dev/null 2>&1; then
+    echo "Adding CUPS printer"
+    /opt/brother/Printers/${_model}/cupswrapper/cupswrapper${_model} || true
+  fi
+
+  chmod 755 /opt/brother/Printers/${_model}/cupswrapper
+
+  if command -v semanage >/dev/null 2>&1; then
+    semanage fcontext -a -t cupsd_rw_etc_t "/opt/brother/Printers/${_model}/inf(/.*)?" || true
+    semanage fcontext -a -t bin_t "/opt/brother/Printers/${_model}/lpd(/.*)?" || true
+    semanage fcontext -a -t bin_t "/opt/brother/Printers/${_model}/cupswrapper(/.*)?" || true
+    if command -v restorecon >/dev/null 2>&1; then
+      restorecon -R /opt/brother/Printers/${_model} || true
+    fi
+  fi
+
+  if command -v paper >/dev/null 2>&1 && [ "$(paper --no-size 2>/dev/null)" = "A4" ]; then
+    echo "Setting paper format to A4"
+    sed -i 's/^PageSize=Letter/PageSize=A4/' /opt/brother/Printers/${_model}/inf/br${_model}rc
+  else
+    echo "Keeping Letter format"
+  fi
+
+  _restart_print_service
+}
+
+pre_remove() {
+  /opt/brother/Printers/${_model}/cupswrapper/cupswrapper${_model} -e >/dev/null 2>&1 || true
+  /opt/brother/Printers/${_model}/inf/setupPrintcapij ${_model} -e >/dev/null 2>&1 || true
+}
+
+post_remove() {
+  rm -f /tmp/${_model}_latest_print_info
+
+  if command -v semanage >/dev/null 2>&1; then
+    semanage fcontext -d -t cupsd_rw_etc_t "/opt/brother/Printers/${_model}/inf(/.*)?" || true
+    semanage fcontext -d -t bin_t "/opt/brother/Printers/${_model}/lpd(/.*)?" || true
+    semanage fcontext -d -t bin_t "/opt/brother/Printers/${_model}/cupswrapper(/.*)?" || true
+  fi
+
+  _restart_print_service
+}
+
+_restart_print_service() {
+  if ! command -v systemctl >/dev/null 2>&1; then
+    return
+  fi
+
+  if systemctl is-active --quiet cups; then
+    echo "Restarting CUPS service"
+    systemctl restart cups || true
+  elif systemctl is-active --quiet lpd; then
+    echo "Restarting LPRng service"
+    systemctl restart lpd || true
+  fi
+}

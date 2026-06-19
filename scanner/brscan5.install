@@ -1,0 +1,22 @@
+post_install() {
+  if command -v udevadm >/dev/null 2>&1; then
+    udevadm control --reload-rules || true
+    udevadm trigger --subsystem-match=usb --attr-match=idVendor=04f9 || true
+  fi
+
+  cat <<'EOF'
+To register a network scanner, run:
+  sudo brsaneconfig5 -a name=<name> model=<model> ip=<address>
+EOF
+}
+
+post_upgrade() {
+  post_install
+}
+
+post_remove() {
+  if command -v udevadm >/dev/null 2>&1; then
+    udevadm control --reload-rules || true
+    udevadm trigger --subsystem-match=usb --attr-match=idVendor=04f9 || true
+  fi
+}

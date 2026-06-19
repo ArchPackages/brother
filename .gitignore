@@ -1,0 +1,12 @@
+# makepkg build output
+pkg/
+src/
+*.pkg.tar
+*.pkg.tar.*
+*.src.tar
+*.src.tar.*
+
+# local editor/runtime noise
+*.swp
+*.swo
+*~

@@ -1,0 +1,92 @@
+pkgname=brscan5
+pkgver=1.7.0_0
+pkgrel=1
+pkgdesc='SANE drivers from Brother for compatible models'
+arch=('x86_64')
+license=('GPL' 'custom:Brother')
+url='https://support.brother.com'
+depends=('sane' 'libusb-compat' 'gcc-libs' 'glibc')
+optdepends=('gtk2: for running brscan_gnetconfig')
+backup=(
+  'opt/brother/scanner/brscan5/brscan5.ini'
+  'opt/brother/scanner/brscan5/brsanenetdevice.cfg'
+)
+options=('!strip')
+install='brscan5.install'
+source=("${pkgname}-${pkgver/_/-}.amd64.deb")
+noextract=("${pkgname}-${pkgver/_/-}.amd64.deb")
+sha256sums=('9c3a200db3dc7b2b3332dff8c5226b4f3ee560d20b2e1f4918b1faf7124517b2')
+
+prepare() {
+  bsdtar -Oxf "${srcdir}/${pkgname}-${pkgver/_/-}.amd64.deb" data.tar.xz |
+    bsdtar -xf - -C "${srcdir}"
+}
+
+_link_library() {
+  local libdir=$1
+  local library=$2
+  local link1=${library%.*}
+  local link2=${link1%.*}
+  local soname=${library%%.so*}.so
+
+  ln -sf "${library}" "${libdir}/${link1}"
+  ln -sf "${link1}" "${libdir}/${link2}"
+  ln -sf "${link2}" "${libdir}/${soname}"
+}
+
+_install_library() {
+  local runtime_dir=$1
+  local pkg_dir="${pkgdir}${runtime_dir}"
+  local library=$2
+  local brother_dir="${pkgdir}/opt/brother/scanner/brscan5"
+
+  mv "${brother_dir}/${library}" "${pkg_dir}/${library}"
+  _link_library "${pkg_dir}" "${library}"
+  ln -sf "${runtime_dir}/${library}" "${brother_dir}/${library}"
+}
+
+package() {
+  local brother_dir="${pkgdir}/opt/brother/scanner/brscan5"
+
+  cp -a "${srcdir}/etc" "${pkgdir}/"
+  cp -a "${srcdir}/opt" "${pkgdir}/"
+
+  install -D -m644 "${srcdir}/opt/brother/scanner/brscan5/doc/LICENSE_ENG.txt" \
+    "${pkgdir}/usr/share/licenses/${pkgname}/LICENSE_ENG.txt"
+  install -D -m644 "${srcdir}/opt/brother/scanner/brscan5/doc/LICENSE_JPN.txt" \
+    "${pkgdir}/usr/share/licenses/${pkgname}/LICENSE_JPN.txt"
+
+  install -d "${pkgdir}/etc/sane.d/dll.d"
+  echo 'brother5' > "${pkgdir}/etc/sane.d/dll.d/brother5.conf"
+  chmod 644 "${pkgdir}/etc/sane.d/dll.d/brother5.conf"
+
+  install -d "${pkgdir}/etc/opt/brother/scanner/brscan5"
+  ln -sf '/opt/brother/scanner/brscan5/brscan5.ini' \
+    "${pkgdir}/etc/opt/brother/scanner/brscan5/brscan5.ini"
+  ln -sf '/opt/brother/scanner/brscan5/brsanenetdevice.cfg' \
+    "${pkgdir}/etc/opt/brother/scanner/brscan5/brsanenetdevice.cfg"
+  ln -sf '/opt/brother/scanner/brscan5/models' \
+    "${pkgdir}/etc/opt/brother/scanner/brscan5/models"
+
+  install -D -m644 "${srcdir}/opt/brother/scanner/brscan5/udev-rules/NN-brother-mfp-brscan5-1.0.2-2.rules" \
+    "${pkgdir}/usr/lib/udev/rules.d/40-${pkgname}.rules"
+  sed -i '/SYSFS/d' "${pkgdir}/usr/lib/udev/rules.d/40-${pkgname}.rules"
+
+  install -d "${pkgdir}/usr/lib/sane" "${pkgdir}/usr/lib"
+  _install_library '/usr/lib/sane' 'libsane-brother5.so.1.0.7'
+
+  _install_library '/usr/lib' 'libLxBsScanCoreApi.so.3.2.6'
+  _install_library '/usr/lib' 'libLxBsDeviceAccs.so.1.0.0'
+  _install_library '/usr/lib' 'libLxBsNetDevAccs.so.1.0.0'
+  _install_library '/usr/lib' 'libLxBsUsbDevAccs.so.1.0.0'
+
+  install -d "${pkgdir}/usr/bin"
+  local bins=(brsaneconfig5 brscan_cnetconfig brscan_gnetconfig setupSaneScan5)
+  local bin
+  for bin in "${bins[@]}"; do
+    mv "${brother_dir}/${bin}" "${pkgdir}/usr/bin/${bin}"
+    ln -sf "/usr/bin/${bin}" "${brother_dir}/${bin}"
+  done
+
+  chmod -R u+rwX,go+rX,go-w "${pkgdir}/etc" "${pkgdir}/opt" "${pkgdir}/usr"
+}
