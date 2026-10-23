@@ -27,7 +27,7 @@ Choose “Brother MFCL3760CDW CUPS (en)” — the fourth entry. That uses the B
 
    You can also choose **Provide a PPD File** and select the `.ppd` installed by your driver package. Finish with **Add Printer**, then print a test page from the printer’s CUPS page.
 
-To confirm the queue was added, run `lpstat -t`. If `lpinfo -m` finds nothing, tell me how you installed `mfcl3760cdwpdrv` and whether the printer is connected by USB or network; that determines the exact driver path and connection address. :chatgpt-content-reference{index="0"}
+To confirm the queue was added, run `lpstat -t`. If `lpinfo -m` finds nothing, check how `mfcl3760cdwpdrv` was installed and whether the printer is connected by USB or network; that determines the exact driver path and connection address.
 
 
 

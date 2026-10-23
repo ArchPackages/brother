@@ -1,3 +1,5 @@
+# Maintainer: Miroslav Pavleski <miroslav@pavleski.net>
+
 pkgname=brscan-skey
 pkgver=0.3.5_0
 pkgrel=1

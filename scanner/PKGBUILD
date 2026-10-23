@@ -1,3 +1,5 @@
+# Maintainer: Miroslav Pavleski <miroslav@pavleski.net>
+
 pkgname=brscan5
 pkgver=1.7.0_0
 pkgrel=1
