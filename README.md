@@ -3,6 +3,10 @@
 Packaging for the Brother MFC-L3760CDW printer and scanner on Arch Linux, plus
 setup notes for the CUPS printer queue.
 
+## Tested hardware
+
+Tested with the Brother MFC-L3760CDW printer/scanner.
+
 ## Packages
 
 | Directory | Package | Description |
